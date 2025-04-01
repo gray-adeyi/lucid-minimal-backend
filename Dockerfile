@@ -1,6 +1,6 @@
 FROM docker.io/python:3.13-slim
 
-ENV PROJECT_DIR=/lucid_minimal_backend
+ENV PROJECT_DIR=/lucid-minimal-backend
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH=${PROJECT_DIR}
