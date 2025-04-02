@@ -7,7 +7,7 @@ from jose import jwt
 from pydantic import BaseModel, EmailStr, model_validator
 
 from app.core.config import settings
-from app.models import User, Post
+from app.models import User
 
 
 class ResponseSchema[T](BaseModel):
@@ -76,13 +76,3 @@ class PostDetailSchema(PostSchema):
     author_id: UUID
     created_at: datetime
     updated_at: datetime | None
-
-    @classmethod
-    def from_db_model(cls, model: Post):
-        return cls(
-            id=model.id,
-            text=model.text,
-            author_id=model.author_id,
-            created_at=model.created_at,
-            updated_at=model.updated_at,
-        )

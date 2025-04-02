@@ -40,7 +40,9 @@ async def create_post(
         )
     new_post = Post(text=body.text, author_id=user.id)
     await crud.create_post(session=session, data=new_post)
-    return ResponseSchema(data=PostDetailSchema.from_db_model(new_post))
+    return ResponseSchema(
+        data=PostDetailSchema.model_validate(new_post, from_attributes=True)
+    )
 
 
 @posts_router.get("/")
@@ -55,7 +57,9 @@ async def get_post_detail(
     id: UUID,
     post: Annotated[Post, Depends(get_post_by_id)],
 ):
-    return ResponseSchema(data=PostDetailSchema.from_db_model(post))
+    return ResponseSchema(
+        data=PostDetailSchema.model_validate(post, from_attributes=True)
+    )
 
 
 @posts_router.delete("/{id}/", status_code=status.HTTP_204_NO_CONTENT)
