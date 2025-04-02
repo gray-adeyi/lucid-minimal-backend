@@ -1,16 +1,17 @@
 from uuid import UUID
-from typing import Never, Annotated
+from typing import Never, Annotated, cast
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.requests import Request
-
+from fastapi.responses import Response
 from app import crud
 from app.api.deps import AuthenticatedUserDep, SessionDep
 from app.models import Post
-from app.schema import CreatePostSchema, ResponseSchema, PostDetailSchema
+from app.schema import CreatePostSchema, ResponseSchema, PostDetailSchema, PostSchema
 
 posts_router = APIRouter(prefix="/posts", tags=["Posts"])
 
-MAX_POST_PAYLOAD_SIZE = 1_000_000
+MAX_POST_PAYLOAD_SIZE = 1_000_000  # 1 Mb in bytes
+GET_POST_CACHE_DURATION = 5 * 60  # 5 minutes to seconds
 
 
 async def get_post_by_id(
@@ -47,9 +48,19 @@ async def create_post(
 
 @posts_router.get("/")
 async def get_posts(
+    session: SessionDep,
     user: AuthenticatedUserDep,  # noqa: ARG001 ignore unused arg, it is used to protect route
+    response: Response,
 ):
-    raise NotImplementedError("This endpoint is yet to  be implemented")
+    # Simple caching
+    response.headers["Cache-Control"] = f"public, max-age={GET_POST_CACHE_DURATION}"
+    posts = await crud.get_posts(session=session, author_id=user.id)
+    posts = cast(
+        list[PostSchema],
+        [PostSchema.model_validate(post, from_attributes=True) for post in posts],
+    )
+    # Response is not paginated for simplicity
+    return ResponseSchema(data=posts)
 
 
 @posts_router.get("/{id}/")
