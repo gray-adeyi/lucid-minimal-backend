@@ -77,7 +77,7 @@ async def get_user_from_access_token(
             detail=str(error),
             headers={"WWW-Authenticate": "Bearer"},
         )
-    user = await crud.get_user_by_id(session=session, user_id=user_id)
+    user = await crud.get_user_by_id(session=session, id=user_id)
     if user is None:
         raise credentials_exception
     return user

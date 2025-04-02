@@ -1,12 +1,13 @@
 from datetime import timedelta, datetime
 from typing import Annotated, Callable, Self
+from uuid import UUID
 
 from fastapi import Depends
 from jose import jwt
 from pydantic import BaseModel, EmailStr, model_validator
 
 from app.core.config import settings
-from app.models import User
+from app.models import User, Post
 
 
 class ResponseSchema[T](BaseModel):
@@ -62,6 +63,26 @@ class SignUpSchema(BaseModel):
         return self
 
 
-class SignInSchema(BaseModel):
-    email: EmailStr
-    password: str
+class CreatePostSchema(BaseModel):
+    text: str
+
+
+class PostSchema(BaseModel):
+    id: UUID
+    text: str
+
+
+class PostDetailSchema(PostSchema):
+    author_id: UUID
+    created_at: datetime
+    updated_at: datetime | None
+
+    @classmethod
+    def from_db_model(cls, model: Post):
+        return cls(
+            id=model.id,
+            text=model.text,
+            author_id=model.author_id,
+            created_at=model.created_at,
+            updated_at=model.updated_at,
+        )

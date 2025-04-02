@@ -1,10 +1,9 @@
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
 from app.core.config import settings
 from app.core.security import hash_password
-from app.models import User
+from app.models import User, Post
 from app.schema import SignUpSchema
 from pydantic import EmailStr
 from sqlalchemy import select
@@ -28,6 +27,13 @@ async def get_user_by_email(*, session: AsyncSession, email: EmailStr) -> User |
 
 
 async def get_user_by_id(*, session: AsyncSession, id: UUID) -> User | None:
-    query = select(User).where(User.id == id)
+    query = select(User).where(User.id == str(id))
     result = await session.execute(query)
     return result.scalar_one_or_none()
+
+
+async def create_post(*, session: AsyncSession, data: Post) -> Post:
+    session.add(data)
+    await session.commit()
+    await session.refresh(data)
+    return data

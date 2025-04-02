@@ -8,7 +8,7 @@ from app.schema import TokenSchema, ResponseSchema, SignUpSchema
 auth_router = APIRouter(prefix="/auth", tags=["User Authentication"])
 
 
-@auth_router.post("/sign-up")
+@auth_router.post("/sign-up/")
 async def sign_up(
     body: SignUpSchema,
     tokens: Annotated[
@@ -18,7 +18,7 @@ async def sign_up(
     return ResponseSchema(data=tokens)
 
 
-@auth_router.post("/login")
+@auth_router.post("/login/")
 async def login(
     tokens: Annotated[
         TokenSchema, Depends(TokenSchema.generate_tokens(get_user_from_form_data))
