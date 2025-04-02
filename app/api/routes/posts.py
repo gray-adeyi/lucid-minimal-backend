@@ -33,6 +33,7 @@ async def create_post(
     session: SessionDep,
     user: AuthenticatedUserDep,  # noqa: ARG001 ignore unused arg, it is used to protect route
 ):
+    """Create a post for the authenticated user"""
     content_length = int(request.headers.get("content_length", "0"))
     if content_length > MAX_POST_PAYLOAD_SIZE:
         raise HTTPException(
@@ -52,6 +53,11 @@ async def get_posts(
     user: AuthenticatedUserDep,  # noqa: ARG001 ignore unused arg, it is used to protect route
     response: Response,
 ):
+    """Retrieve all posts belonging to the authenticated user.
+
+    Note:
+        The endpoint does not return paginated data  or support filtering
+    """
     # Simple caching
     response.headers["Cache-Control"] = f"public, max-age={GET_POST_CACHE_DURATION}"
     posts = await crud.get_posts(session=session, author_id=user.id)
@@ -68,6 +74,7 @@ async def get_post_detail(
     id: UUID,
     post: Annotated[Post, Depends(get_post_by_id)],
 ):
+    """Retrieve a post belonging to the authenticated user by id"""
     return ResponseSchema(
         data=PostDetailSchema.model_validate(post, from_attributes=True)
     )
@@ -79,4 +86,5 @@ async def delete_post(
     session: SessionDep,
     post: Annotated[Post, Depends(get_post_by_id)],
 ):
+    """Delete a post belonging to the authenticated user"""
     await crud.delete_post(session=session, post=post)

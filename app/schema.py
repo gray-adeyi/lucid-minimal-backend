@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import Depends
 from jose import jwt
-from pydantic import BaseModel, EmailStr, model_validator
+from pydantic import BaseModel, EmailStr, model_validator, Field
 
 from app.core.config import settings
 from app.models import User
@@ -52,9 +52,14 @@ class TokenSchema(BaseModel):
 
 
 class SignUpSchema(BaseModel):
-    email: EmailStr
-    password: str
-    confirm_password: str
+    email: EmailStr = Field(
+        description="The email address of the user",
+        examples=["johndoe@example.com", "adeyigbenga005@gmail.com"],
+    )
+    password: str = Field(description="Password", examples=["password123"])
+    confirm_password: str = Field(
+        description="Confirm password, must match password", examples=["password123"]
+    )
 
     @model_validator(mode="after")
     def validate_password(self) -> Self:
@@ -64,10 +69,13 @@ class SignUpSchema(BaseModel):
 
 
 class CreatePostSchema(BaseModel):
-    text: str
+    text: str = Field(
+        description="The content of the post",
+        examples=["Beautiful is better than ugly.", "Explicit is better than implicit"],
+    )
 
 
-class PostSchema(BaseModel):
+class PostSchema(CreatePostSchema):
     id: UUID
     text: str
 
