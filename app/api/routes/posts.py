@@ -1,6 +1,6 @@
 from uuid import UUID
-
-from fastapi import APIRouter, HTTPException, status
+from typing import Never, Annotated
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.requests import Request
 
 from app import crud
@@ -13,7 +13,19 @@ posts_router = APIRouter(prefix="/posts", tags=["Posts"])
 MAX_POST_PAYLOAD_SIZE = 1_000_000
 
 
-@posts_router.post("/")
+async def get_post_by_id(
+    id: UUID, user: AuthenticatedUserDep, session: SessionDep
+) -> Post | Never:
+    post = await crud.get_post_by_id(session=session, id=id)
+    if not post or post.author_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="post not found",
+        )
+    return post
+
+
+@posts_router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_post(
     request: Request,
     body: CreatePostSchema,
@@ -41,14 +53,15 @@ async def get_posts(
 @posts_router.get("/{id}/")
 async def get_post_detail(
     id: UUID,
-    user: AuthenticatedUserDep,  # noqa: ARG001 ignore unused arg, it is used to protect route
+    post: Annotated[Post, Depends(get_post_by_id)],
 ):
-    raise NotImplementedError("This endpoint is yet to  be implemented")
+    return ResponseSchema(data=PostDetailSchema.from_db_model(post))
 
 
-@posts_router.delete("/{id}/")
+@posts_router.delete("/{id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_post(
     id: UUID,
-    user: AuthenticatedUserDep,  # noqa: ARG001 ignore unused arg, it is used to protect route
+    session: SessionDep,
+    post: Annotated[Post, Depends(get_post_by_id)],
 ):
-    raise NotImplementedError("This endpoint is yet to  be implemented")
+    await crud.delete_post(session=session, post=post)
