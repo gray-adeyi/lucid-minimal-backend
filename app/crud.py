@@ -37,3 +37,13 @@ async def create_post(*, session: AsyncSession, data: Post) -> Post:
     await session.commit()
     await session.refresh(data)
     return data
+
+
+async def get_post_by_id(*, session: AsyncSession, id: UUID) -> Post | None:
+    query = select(Post).where(Post.id == str(id))
+    result = await session.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def delete_post(*, session: AsyncSession, post: Post):
+    await session.delete(post)
