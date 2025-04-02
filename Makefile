@@ -8,7 +8,7 @@ dev-setup:
 	echo "🎉 All set, development setup completed successfully"
 
 dev-setup-podman:
-    echo "Setting up project for development..."
+	echo "Setting up project for development..."
 	echo "Building project docker image, this may take a while..."
 	podman build -t lucid-minimal-backend:latest .
 	echo "✔ Project docker image build successful"
