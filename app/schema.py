@@ -9,6 +9,11 @@ from app.core.config import settings
 from app.models import User
 
 
+class ResponseSchema[T](BaseModel):
+    detail: str | None = None
+    data: T | None = None
+
+
 class TokenSchema(BaseModel):
     token_type: str = "bearer"
     access_token: str
