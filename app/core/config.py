@@ -8,13 +8,14 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    API_VERSION: str = 'v1'
+    API_VERSION: str = "v1"
 
-    DEBUG:bool
+    DEBUG: bool
 
     MYSQL_HOST: str
     MYSQL_USER: str
     MYSQL_PASSWORD: str
+    MYSQL_ROOT_PASSWORD: str
     MYSQL_DATABASE: str
     MYSQL_PORT: int
 
@@ -31,4 +32,5 @@ class Settings(BaseSettings):
         tokenUrl="api/v1/auth/login"
     )
 
-settings =  Settings() # type-ignore
+
+settings = Settings()  # type-ignore
