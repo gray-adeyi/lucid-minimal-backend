@@ -1,3 +1,4 @@
+from typing import Sequence
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,6 +44,12 @@ async def get_post_by_id(*, session: AsyncSession, id: UUID) -> Post | None:
     query = select(Post).where(Post.id == str(id))
     result = await session.execute(query)
     return result.scalar_one_or_none()
+
+
+async def get_posts(*, session: AsyncSession, author_id: UUID) -> Sequence[Post]:
+    query = select(Post).where(Post.author_id == str(author_id))
+    result = await session.execute(query)
+    return result.scalars().all()
 
 
 async def delete_post(*, session: AsyncSession, post: Post):
